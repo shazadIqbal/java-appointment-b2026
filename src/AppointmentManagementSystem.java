@@ -61,13 +61,13 @@ public class AppointmentManagementSystem {
         Doctor doctor1 = new Doctor(1L,"DR-ASIM",
                 Specialzation.ENT,
                 5000.0,
-                initSlots(5));
+                initSlots(50));
 
 
         Doctor doctor2 = new Doctor(2L,"DR-TAHA",
                 Specialzation.GENERAL,
                 2500.0,
-                initSlots(10));
+                initSlots(100));
 
 
         doctorList.add(doctor1);
@@ -89,8 +89,8 @@ public class AppointmentManagementSystem {
     private Slot getRandomSlot(){
         Random random = new Random();
         int month = random.nextInt(12) + 1;
-        int dayOfMonth = random.nextInt(30) +1;
-        int hour = random.nextInt(12) + 12;
+        int dayOfMonth = random.nextInt(28) + 1;
+        int hour = random.nextInt(12) + 9;
         int minute = random.nextInt(60);
 
         LocalDate localDate = LocalDate.of(2026,month,dayOfMonth);
@@ -121,5 +121,46 @@ public class AppointmentManagementSystem {
 
     public void setAppointments(List<Appointment> appointments) {
         this.appointments = appointments;
+    }
+
+    public Optional<Patient> findPatientByMrNumber(String mrNumber) {
+
+        for(Patient patient : patientList){
+            if(mrNumber.equalsIgnoreCase(patient.getMrNumber())){
+                return Optional.of(patient);
+            }
+        }
+
+        return Optional.empty();
+    }
+
+    public Optional<Doctor> findDoctorByName(String name) {
+
+        for(Doctor doctor : doctorList){
+            if(name.equalsIgnoreCase(doctor.getName())){
+                return Optional.of(doctor);
+            }
+        }
+
+        return Optional.empty();
+    }
+
+    public Map<String,Set<Slot>> findDoctorBySlot(LocalDate localDate) {
+       Map<String,Set<Slot>> map = new HashMap<>();
+
+        for(Doctor doctor : doctorList){
+            map.put(doctor.getName(),new HashSet<>());
+        }
+
+
+       for(Doctor doctor : doctorList){
+           for(Slot slot : doctor.getSlots()){
+               if(slot.getDate().isAfter(localDate)){
+                   map.get(doctor.getName()).add(slot);
+               }
+           }
+       }
+
+        return map;
     }
 }

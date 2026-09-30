@@ -33,4 +33,11 @@ public class PatientHistory {
     public void setRecordList(List<Map<String, String>> recordList) {
         this.recordList = recordList;
     }
+
+    @Override
+    public String toString() {
+        return "PatientHistory{" +
+                "recordList=" + recordList +
+                '}';
+    }
 }
