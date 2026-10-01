@@ -1,6 +1,8 @@
+import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class AppointmentManagementSystem {
 
@@ -145,22 +147,106 @@ public class AppointmentManagementSystem {
         return Optional.empty();
     }
 
-    public Map<String,Set<Slot>> findDoctorBySlot(LocalDate localDate) {
+    public Map<String,Set<Slot>> findDoctorByDate(LocalDate localDate) {
        Map<String,Set<Slot>> map = new HashMap<>();
 
         for(Doctor doctor : doctorList){
             map.put(doctor.getName(),new HashSet<>());
         }
 
+        // DR-TAHA - > [] avaialble slots
+        // DR-ASIM ->  []
+        // DR-S -> []
+        // DR-A -> []
+
 
        for(Doctor doctor : doctorList){
+
            for(Slot slot : doctor.getSlots()){
+               // slots dates is always after the given date
                if(slot.getDate().isAfter(localDate)){
-                   map.get(doctor.getName()).add(slot);
+                  Set<Slot> slotSet = map.get(doctor.getName());
+                  slotSet.add(slot);
                }
            }
        }
 
         return map;
+    }
+
+    public Patient getPatientByInput(Scanner sc) {
+
+        Random random = new Random();
+        String mrNumber;
+        Long id;
+
+        while(true){
+            id = (long) random.nextInt(1000);
+            mrNumber = "M" + id;
+            Optional<Patient> patient = findPatientByMrNumber(mrNumber);
+            if(patient.isEmpty()){
+                break;
+            }
+        }
+
+        System.out.println("Please enter name :");
+        String name = sc.next();
+
+        System.out.println("Please enter the age");
+        Integer age = sc.nextInt();
+        System.out.println("Please enter gender");
+        Gender gender = sc.next().equalsIgnoreCase("MALE") ? Gender.MALE : Gender.FEMALE;
+        System.out.println("Please enter the phone number");
+        String phone = sc.next();
+
+        Patient patient = new Patient(id,name,mrNumber,age,gender,phone,null);
+
+        return patient;
+
+    }
+
+    public void addNewPatient(Patient newPatient) {
+        patientList.add(newPatient);
+        System.out.println("Added succesfully with MrNumber"+ newPatient.getMrNumber());
+    }
+
+    public Map<String, Set<Slot>> findDoctorAvailbleSlotsBySpec(String specialzation) {
+
+
+        Map<String,Set<Slot>> map = new HashMap<>();
+
+        List<Doctor> doctors = doctorList.stream()
+                .filter(d-> d.getSpecialzation().toString()
+                        .equalsIgnoreCase(specialzation))
+                .collect(Collectors.toList());
+
+        LocalDate today = LocalDate.now();
+
+        for(Doctor doctor : doctors){
+            for(Slot slot : doctor.getSlots()){
+                if(slot.getDate().isAfter(today)){
+                    if(map.containsKey(doctor.getName())){
+                        Set<Slot> slotSet = map.get(doctor.getName());
+                        slotSet.add(slot);
+                    }else{
+
+                        map.put(doctor.getName(), new HashSet<>());
+                        map.get(doctor.getName()).add(slot);
+                    }
+                }
+            }
+        }
+        return map;
+    }
+
+    public boolean validateSpecialization(String input) {
+        for(Specialzation specialzation : Specialzation.values()){
+            if(input.equalsIgnoreCase(specialzation.toString())){
+                return true;
+            }
+        }
+
+
+        return false;
     }
 }

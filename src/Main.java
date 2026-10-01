@@ -1,5 +1,4 @@
 import java.time.LocalDate;
-import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
@@ -19,7 +18,9 @@ public class Main {
             System.out.println(" press 1 for find Patient By MrNumber");
             System.out.println(" press 2 for find Doctor By Name");
             System.out.println(" press 3 for find Doctor By Slot");
-            System.out.println(" press 4 exit");
+            System.out.println(" press 4 add new patient");
+            System.out.println(" Press 5 find Doctor Available Slots by Specilazation");
+            System.out.println(" press 6 exit");
 
             int option = sc.nextInt();
 
@@ -41,18 +42,39 @@ public class Main {
                 case 3:
                     System.out.println("Please Enter Date time DD/MM/YYY");
                     String date = sc.next();
-
-
+                   // "10/10/2026"
                     LocalDate localDate = LocalDate.parse(date, DateTimeFormatter.ofPattern("dd/MM/yyyy"));
 
-                    Map<String, Set<Slot>> doctorList = ams.findDoctorBySlot(localDate);
+                    Map<String, Set<Slot>> doctorList = ams.findDoctorByDate(localDate);
                     doctorList.forEach((k,v)->{
                         System.out.println(k);
                         v.forEach(System.out::println);
                     });
 
                     break;
+
                 case 4:
+                    Patient newPatient = ams.getPatientByInput(sc);
+                    ams.addNewPatient(newPatient);
+                    break;
+                case 5:
+                    System.out.println("Enter the specilization");
+                    String input = sc.next();
+                    if(ams.validateSpecialization(input)){
+                        Map<String,Set<Slot>> map = ams.findDoctorAvailbleSlotsBySpec(input);
+                        map.forEach((k,v)->{
+                            System.out.println(k);
+                            v.forEach(System.out::println);
+                        });
+
+                    }else{
+                        System.out.println("Specialzation not valid");
+                    }
+                    break;
+
+
+
+                    case 6:
                     run = false;
 
 
@@ -64,4 +86,6 @@ public class Main {
 
 
     }
+
+
 }
